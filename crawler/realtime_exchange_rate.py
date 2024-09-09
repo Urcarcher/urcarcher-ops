@@ -60,7 +60,9 @@ class RealTimeExRateCrawler(object) :
                 self._driver.get(f"https://finance.naver.com/marketindex/exchangeDegreeCountQuote.naver?marketindexCd=FX_{ex_type}KRW")
                 soup = BeautifulSoup(self._driver.page_source, "html.parser")
 
-                cols = soup.find("tbody").find_next("tr").find_all("td")
+                temp = soup.find("tbody").find_next("tr")
+                up_or_down = temp.attrs["class"][0]
+                cols = temp.find_all("td")
                 exchange_name = self._exchange_types[ex_type]
 
                 ex_split = exchange_name.split(" ")
@@ -77,7 +79,7 @@ class RealTimeExRateCrawler(object) :
                     self._columns[8] : str(last_date),
                     self._columns[9] : self._clean_text(section.find("span", {"class":"standard"})),
                     self._columns[10] : self._clean_text(cols[0]),
-                    self._columns[11] : self._clean_text(cols[2])
+                    self._columns[11] : ('▲' if up_or_down == 'up' else '▼' if up_or_down == 'down' else '◆') + self._clean_text(cols[2])
                 }
 
                 data = json.dumps(data, ensure_ascii=False)

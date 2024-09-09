@@ -42,31 +42,40 @@ class BiLSTMInference(object) :
                     type,
                     col,
                     1,
-                    1300,
-                    260,
-                    1300
+                    500,
+                    130,
+                    300
                 )
+
+                model = self._load_model(type, col)
 
                 data_processor.scaling().set_train_test_data()
                 scaler = data_processor.get_scaler()
 
                 testX = data_processor.get_data_set_for_predict()
-                prediction = self._load_model(type, col).predict(testX)
-                prediction = prediction.reshape(self._pred_days, -1)
-                mean_values_pred = np.repeat(scaler.mean_[np.newaxis, :], prediction.shape[0], axis=0)
-                mean_values_pred[:, 0] = np.squeeze(prediction)
+
+                result = []
+                repeat = int(260/130) if 260 % 130 == 0 else int(260/130) + 1
+                for _ in range(repeat) :
+                    prediction = model.predict(testX)
+                    testX = np.array([np.concatenate((testX[0][130:], prediction[0]), axis=0)])
+                    result.extend(prediction[0].tolist())
+
+                result = np.array([result[:260]])
+                result = result.reshape(260, -1)
+
+                mean_values_pred = np.repeat(scaler.mean_[np.newaxis, :], result.shape[0], axis=0)
+                mean_values_pred[:, 0] = np.squeeze(result)
                 y_pred = scaler.inverse_transform(mean_values_pred)[:,0]
 
                 new_data[col] = y_pred
 
-            self._type_dict[type] = new_data
+            new_data['Change %'] = (new_data['Price'] - new_data["Price"].shift())/new_data["Price"] * 100
+            new_data = new_data.fillna(0)
 
-        # plt.plot(y_pred[:],
-        #         color='red',
-        #         linestyle='--',
-        #         label='Predicted Open Price')
+            self._type_dict[type] = new_data.copy()
 
-        # plt.show()
+        print(self._type_dict)
 
         return "predict success."
     

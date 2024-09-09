@@ -31,14 +31,14 @@ class BiLSTMTraining(object) :
                     type,
                     col,
                     1,
-                    1300,
-                    260,
-                    1300
+                    500,
+                    130,
+                    300
                 )
 
                 trainX, trainY, _, _ = data_processor.get_data_set_by_sliding_window()
                 model = self._load_model()
-                _ = model.fit(trainX, trainY, epochs=200, batch_size=256,
+                _ = model.fit(trainX, trainY, epochs=500, batch_size=256,
                                     validation_split=0.1, verbose=1)
                 model.save_weights(f"{self._model_path}/BiLSTM_{type}_{col}.weights.h5")
 

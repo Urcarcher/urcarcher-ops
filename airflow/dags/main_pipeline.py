@@ -33,7 +33,7 @@ with DAG(
     default_args=default_args,
     start_date=datetime(2024, 9, 1, tzinfo=kst),
     description='main pipeline',
-    schedule_interval='@once',
+    schedule_interval='@weekly',
     tags=['main'],
     catchup=False
     ):

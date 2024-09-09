@@ -22,11 +22,12 @@ class UrcarcherDBManager(object) :
         cur = self._conn.cursor()
         forecasted = forecasted.to_dict()
 
-        sql = f"DELETE FROM forecasted_ex_rate_1yr WHERE exchange_type = '{exchange_type}'"
+        sql = f"DELETE FROM forecasted_ex_rate_1yr WHERE exchange_type = '{exchange_type.split('_')[0]}'"
         cur.execute(sql)
 
         for n in range(len(forecasted['Date'])) :
-            sql = f"INSERT INTO forecasted_ex_rate_1yr(forecasted_date, forecasted_open, forecasted_high, forecasted_low, forecasted_close, forecasted_change, exchange_type) VALUES('{convert_to_date_format(forecasted['Date'][n])}', '{forecasted['Open'][n]}', '{forecasted['High'][n]}', '{forecasted['Low'][n]}', '{forecasted['Price'][n]}', '{forecasted['Change %'][n]}', '{exchange_type}')"
+            sql = f"INSERT INTO forecasted_ex_rate_1yr(forecast_id, forecasted_date, forecasted_open, forecasted_high, forecasted_low, forecasted_close, forecasted_change, exchange_type) VALUES('{convert_to_date_format(forecasted['Date'][n])}_{exchange_type.split('_')[0]}', '{convert_to_date_format(forecasted['Date'][n])}', '{forecasted['Open'][n]}', '{forecasted['High'][n]}', '{forecasted['Low'][n]}', '{forecasted['Price'][n]}', '{forecasted['Change %'][n]}', '{exchange_type.split('_')[0]}')"
+            print(sql)
             cur.execute(sql)
 
         self._conn.commit()
